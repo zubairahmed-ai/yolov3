@@ -1,4 +1,4 @@
-# yolov3
+# YOLOV3 Keras
 #### This is an inspiration from the previous work by https://github.com/qqwweee/keras-yolo3, 
 #### I have modified the files to save images of predicted objects every 2 seconds
 #### Those images can be reused for training data
