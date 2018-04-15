@@ -39,6 +39,7 @@ class YOLO(object):
         self.image = 0 
         self.predictedClass = ""       
         self.lasttime = tm()
+        self.topPix = {}
     def _get_class(self):
         classes_path = os.path.expanduser(self.classes_path)
         with open(classes_path) as f:
@@ -82,7 +83,7 @@ class YOLO(object):
 
     def saveFrame(self):
         thistime = tm()        
-        if thistime-self.lasttime > 2:
+        if thistime-self.lasttime > 0.0001:
             imageArray = np.array(self.image)[self.top:self.bottom, self.left:self.right]
             dt_obj = datetime.datetime.now()
             millisec = dt_obj.timestamp() * 1000            
@@ -129,17 +130,24 @@ class YOLO(object):
             left = max(0, np.floor(left + 0.5).astype('int32'))
             bottom = min(image.size[1], np.floor(bottom + 0.5).astype('int32'))
             right = min(image.size[0], np.floor(right + 0.5).astype('int32'))
-            # print(label, (left, top), (right, bottom))
-            global lastsaved
-            lastsaved = datetime.datetime.now()
+
             self.top = top
             self.bottom = bottom
             self.left = left
             self.right = right
             self.image = image
             self.predictedClass = predicted_class                      
-            self.saveFrame()
-            
+
+            savedTop = 0
+            try:
+                savedTop = self.topPix[top]                                                  
+            except:                
+                self.topPix[top]=predicted_class
+                self.saveFrame()               
+
+            if savedTop == predicted_class:
+                continue
+
             draw = ImageDraw.Draw(image)
             
             label_size = draw.textsize(label, font)
